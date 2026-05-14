@@ -24,6 +24,12 @@ RUN mkdir -p /var/www/html/uploads/temp /var/www/html/uploads/compressed \
     && chown -R www-data:www-data /var/www/html/uploads \
     && chmod -R ug+rwX /var/www/html/uploads
 
+COPY docker/entrypoint.sh /usr/local/bin/pdf-compressor-entrypoint.sh
+RUN chmod +x /usr/local/bin/pdf-compressor-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/pdf-compressor-entrypoint.sh"]
+CMD ["apache2-foreground"]
+
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
