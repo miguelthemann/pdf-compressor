@@ -19,7 +19,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="index, follow">
-    <title>Compressão de PDF</title>
+    <title>PDF Sucker</title>
     <link rel="stylesheet" href="assets/css/app.css?v=1">
 </head>
 <body>
@@ -36,8 +36,8 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
                 </svg>
             </span>
             <div>
-                <h1 class="brand-title">Compressão de PDF</h1>
-                <p class="brand-sub">Compressão no servidor com Ghostscript</p>
+                <h1 class="brand-title">PDF Sucker</h1>
+                <p class="brand-sub">Menos megabytes, mesmo PDF — Ghostscript no servidor</p>
             </div>
         </div>
         <div class="header-meta">

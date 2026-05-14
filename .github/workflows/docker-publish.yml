@@ -1,4 +1,4 @@
-name: Build and publish Docker image
+name: PDF Sucker — Docker image
 
 on:
   push:
@@ -13,7 +13,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # Imagem: ghcr.io/<owner>/pdf-sucker (independente do nome do repositório no GitHub)
+  IMAGE_NAME: ${{ github.repository_owner }}/pdf-sucker
 
 jobs:
   build-and-push:

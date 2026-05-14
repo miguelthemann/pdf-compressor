@@ -1,5 +1,8 @@
-# PHP + Apache + Ghostscript + ZIP (extensão) para compressão de PDFs
+# PDF Sucker — PHP + Apache + Ghostscript + ZIP
 FROM php:8.3-apache-bookworm
+
+LABEL org.opencontainers.image.title="PDF Sucker" \
+    org.opencontainers.image.description="Compressão de PDF no servidor com Ghostscript"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -24,10 +27,10 @@ RUN mkdir -p /var/www/html/uploads/temp /var/www/html/uploads/compressed \
     && chown -R www-data:www-data /var/www/html/uploads \
     && chmod -R ug+rwX /var/www/html/uploads
 
-COPY docker/entrypoint.sh /usr/local/bin/pdf-compressor-entrypoint.sh
-RUN chmod +x /usr/local/bin/pdf-compressor-entrypoint.sh
+COPY docker/entrypoint.sh /usr/local/bin/pdf-sucker-entrypoint.sh
+RUN chmod +x /usr/local/bin/pdf-sucker-entrypoint.sh
 
-ENTRYPOINT ["/usr/local/bin/pdf-compressor-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/pdf-sucker-entrypoint.sh"]
 CMD ["apache2-foreground"]
 
 EXPOSE 80

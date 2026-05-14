@@ -45,5 +45,5 @@ return [
         'high' => '/screen', // alta compressão (ficheiro menor)
     ],
 
-    'session_name' => 'pdfcompress_sid',
+    'session_name' => 'pdfsucker_sid',
 ];
