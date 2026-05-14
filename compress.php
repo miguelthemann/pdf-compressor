@@ -1,4 +1,6 @@
 <?php
+// Desenvolvido pelo Sr. Engenheiro João
+
 declare(strict_types=1);
 
 require __DIR__ . '/includes/bootstrap.php';
@@ -27,11 +29,11 @@ if (!is_array($ids) || $ids === []) {
     appJsonResponse(['ok' => false, 'error' => 'Nenhum ficheiro selecionado.'], 400);
 }
 
-$gsBin = (string) ($config['ghostscript_bin'] ?? 'gs');
-if (!ghostscriptAvailable($gsBin)) {
+[$gsBin, $gsOk] = resolveGhostscriptBinary((string) ($config['ghostscript_bin'] ?? 'gs'));
+if (!$gsOk) {
     appJsonResponse([
         'ok' => false,
-        'error' => 'O Ghostscript não está disponível no servidor. Contacte o administrador.',
+        'error' => 'O Ghostscript não está disponível no servidor. Em Ubuntu: sudo apt install ghostscript',
     ], 503);
 }
 
@@ -64,16 +66,14 @@ foreach ($ids as $id) {
     $outName = $id . '_compressed.pdf';
     $output = $outDir . DIRECTORY_SEPARATOR . $outName;
 
-$cmd = '"' . $gsBin . '" '
-    . '-sDEVICE=pdfwrite '
-    . '-dCompatibilityLevel=1.4 '
-    . '-dPDFSETTINGS=' . $pdfSetting . ' '
-    . '-dNOPAUSE '
-    . '-dQUIET '
-    . '-dBATCH '
-    . '-sOutputFile="' . $output . '" '
-    . '"' . $input . '" '
-    . '2>&1';
+    $cmd = escapeshellarg($gsBin)
+        . ' -sDEVICE=pdfwrite'
+        . ' -dCompatibilityLevel=1.4'
+        . ' -dPDFSETTINGS=' . $pdfSetting
+        . ' -dNOPAUSE -dQUIET -dBATCH'
+        . ' -sOutputFile=' . escapeshellarg($output)
+        . ' ' . escapeshellarg($input)
+        . ' 2>&1';
 
     $outputLog = [];
     $code = 0;

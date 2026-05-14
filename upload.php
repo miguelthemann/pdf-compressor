@@ -1,10 +1,9 @@
 <?php
+// Desenvolvido pelo Sr. Engenheiro João
 
 declare(strict_types=1);
 
 require __DIR__ . '/includes/bootstrap.php';
-
-header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     appJsonResponse(['ok' => false, 'error' => 'Método não permitido.'], 405);

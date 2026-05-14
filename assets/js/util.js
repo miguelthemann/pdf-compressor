@@ -1,3 +1,5 @@
+// Desenvolvido pelo Sr. Engenheiro João
+
 /**
  * Formata bytes para texto legível (pt-PT).
  */

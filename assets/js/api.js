@@ -1,3 +1,5 @@
+// Desenvolvido pelo Sr. Engenheiro João
+
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
 
 function parseJsonSafe(text) {

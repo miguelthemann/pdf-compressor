@@ -1,4 +1,5 @@
 <?php
+// Desenvolvido pelo Sr. Engenheiro João
 
 declare(strict_types=1);
 
@@ -29,8 +30,11 @@ return [
      */
     'ttl_minutes' => 30,
 
-    /** Binário Ghostscript (Linux: normalmente "gs") */
-    'ghostscript_bin' => 'C:/Programas/gs/gs10.07.0/bin/gswin64c.exe',
+    /**
+     * Executável Ghostscript (Linux/Ubuntu: "gs" no PATH, ou ex. "/usr/bin/gs").
+     * Instalação típica: sudo apt install ghostscript
+     */
+    'ghostscript_bin' => 'gs',
 
     /**
      * Níveis → -dPDFSETTINGS do Ghostscript

@@ -1,3 +1,5 @@
+// Desenvolvido pelo Sr. Engenheiro João
+
 import { formatBytes, randomId, fileLooksLikePdf } from './util.js';
 import { uploadPdfs, compressPdfs, deleteServerFiles, downloadZip } from './api.js';
 

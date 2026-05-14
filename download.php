@@ -1,4 +1,5 @@
 <?php
+// Desenvolvido pelo Sr. Engenheiro João
 
 declare(strict_types=1);
 

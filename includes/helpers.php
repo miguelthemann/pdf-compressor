@@ -1,4 +1,5 @@
 <?php
+// Desenvolvido pelo Sr. Engenheiro João
 
 declare(strict_types=1);
 
@@ -12,9 +13,39 @@ function appJsonResponse(array $data, int $code = 200): void
 
 function ghostscriptAvailable(string $bin): bool
 {
+    if ($bin === '') {
+        return false;
+    }
     $cmd = escapeshellarg($bin) . ' --version 2>&1';
     $out = @shell_exec($cmd);
     return is_string($out) && trim($out) !== '';
+}
+
+/**
+ * Resolve o executável do Ghostscript (PATH ou caminhos habituais em Linux).
+ *
+ * @return array{0: string, 1: bool} [caminho ou preferido, disponível]
+ */
+function resolveGhostscriptBinary(string $configured): array
+{
+    $configured = trim($configured);
+    if ($configured === '') {
+        $configured = 'gs';
+    }
+
+    $candidates = [$configured];
+    if ($configured === 'gs') {
+        $candidates[] = '/usr/bin/gs';
+        $candidates[] = '/usr/local/bin/gs';
+    }
+
+    foreach (array_unique($candidates) as $bin) {
+        if (ghostscriptAvailable($bin)) {
+            return [$bin, true];
+        }
+    }
+
+    return [$configured, false];
 }
 
 function sanitizeStoredBasename(string $name): string

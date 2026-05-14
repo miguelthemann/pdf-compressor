@@ -1,11 +1,11 @@
 <?php
+// Desenvolvido pelo Sr. Engenheiro João
 
 declare(strict_types=1);
 
 require __DIR__ . '/includes/bootstrap.php';
 
-$gsBin = (string) ($config['ghostscript_bin'] ?? 'gs');
-$gsOk = ghostscriptAvailable($gsBin);
+[$gsBin, $gsOk] = resolveGhostscriptBinary((string) ($config['ghostscript_bin'] ?? 'gs'));
 $maxMb = (int) round((int) $config['max_file_bytes'] / (1024 * 1024));
 $ttl = (int) ($config['ttl_minutes'] ?? 30);
 $maxFiles = (int) ($config['max_files_per_upload'] ?? 20);
@@ -18,8 +18,8 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <title>Compressão de PDF — Ferramenta interna</title>
+    <meta name="robots" content="index, follow">
+    <title>Compressão de PDF</title>
     <link rel="stylesheet" href="assets/css/app.css?v=1">
 </head>
 <body>
@@ -37,7 +37,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
             </span>
             <div>
                 <h1 class="brand-title">Compressão de PDF</h1>
-                <p class="brand-sub">Ferramenta interna · Ghostscript</p>
+                <p class="brand-sub">Compressão no servidor com Ghostscript</p>
             </div>
         </div>
         <div class="header-meta">
@@ -50,7 +50,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
         <?php if (!$gsOk): ?>
             <div class="alert alert-warn" role="alert" data-gs-status="missing">
                 <strong>Ghostscript não detetado.</strong>
-                A compressão no servidor não estará disponível até o Ghostscript estar instalado e acessível como <code><?php echo htmlspecialchars($gsBin, ENT_QUOTES, 'UTF-8'); ?></code>.
+                Em Ubuntu Server instale com <code>sudo apt install ghostscript</code>. Se o PHP não encontrar <code>gs</code> no PATH, defina <code>ghostscript_bin</code> em <code>includes/config.php</code> (ex.: <code>/usr/bin/gs</code>).
             </div>
         <?php else: ?>
             <div class="alert alert-ok visually-hidden" data-gs-status="ok" aria-live="polite">
