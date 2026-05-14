@@ -1,4 +1,4 @@
-# PDF Sucker
+# PDF Sucker 🌬️
 
 Aplicação web para compressão de ficheiros PDF no servidor. Reduz o tamanho dos PDFs mantendo a qualidade usando [Ghostscript](https://www.ghostscript.com/).
 
