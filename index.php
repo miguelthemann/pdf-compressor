@@ -31,7 +31,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
     <header class="site-header">
         <div class="brand">
             <span class="brand-mark" aria-hidden="true">
-                <img src="favicon.png" alt="" width="32" height="32" decoding="async" class="brand-logo">
+                <img src="logo.png" alt="" width="320" height="120" decoding="async" class="brand-logo">
             </span>
             <div>
                 <h1 class="brand-title">PDF Sucker</h1>

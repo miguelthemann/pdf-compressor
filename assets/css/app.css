@@ -82,7 +82,7 @@ body {
     padding: 2rem 1.25rem 1rem;
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
     gap: 1rem;
 }
@@ -96,21 +96,16 @@ body {
 .brand-mark {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
+    justify-content: flex-start;
     flex-shrink: 0;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid var(--panel-border);
-    box-shadow: var(--shadow);
-    overflow: hidden;
+    line-height: 0;
 }
 
 .brand-mark .brand-logo {
     display: block;
-    width: 32px;
-    height: 32px;
+    height: clamp(3.5rem, 12vw, 6.25rem);
+    width: auto;
+    max-width: min(22rem, 88vw);
     object-fit: contain;
 }
 
