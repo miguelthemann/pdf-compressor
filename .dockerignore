@@ -1,0 +1,11 @@
+.git
+.github
+*.md
+.dockerignore
+docker-compose*.yml
+.env
+.env.*
+**/.DS_Store
+uploads/temp/*
+uploads/compressed/*
+!uploads/.htaccess

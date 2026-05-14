@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    image: pdf-compressor:local
+    ports:
+      - "8080:80"
+    volumes:
+      # Persistência e RW explícitos para temp/compressed entre reinícios
+      - uploads_data:/var/www/html/uploads
+    restart: unless-stopped
+
+volumes:
+  uploads_data:

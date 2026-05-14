@@ -112,12 +112,10 @@ function handleZipDownload(array $config): void
         if (!is_string($cp) || !is_file($cp)) {
             continue;
         }
-        // $base = preg_replace('/\.pdf$/i', '', (string) ($m['original_name'] ?? 'documento')) . '_comprimido.pdf';
         $base = (string) ($m['original_name'] ?? 'documento.pdf');
         $base = sanitizeStoredBasename($base);
         $zipIndex++;
-        // $entryName = sprintf('%03d_%s', $zipIndex, $base);
-        $entryName = $base;
+        $entryName = sprintf('%04d_%s', $zipIndex, $base);
         $zip->addFile($cp, $entryName);
         $pathsToDelete[$rid] = $m;
     }
