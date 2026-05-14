@@ -35,7 +35,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
             </span>
             <div>
                 <h1 class="brand-title">PDF Sucker</h1>
-                <p class="brand-sub">Menos megabytes, mesmo PDF — Ghostscript no servidor</p>
+                <p class="brand-sub">Menos megabytes, mesmo PDF — Made by João</p>
             </div>
         </div>
         <div class="header-meta">
