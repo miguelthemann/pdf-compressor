@@ -113,6 +113,12 @@ for ($i = 0; $i < $n; $i++) {
         continue;
     }
 
+    if (is_link($destPath) || !pathIsFileInsideDir($destPath, $tempDir)) {
+        unlinkIfExists($destPath);
+        $results[] = ['ok' => false, 'name' => $origName, 'error' => 'Não foi possível validar o ficheiro guardado.'];
+        continue;
+    }
+
     $batchSize += (int) (filesize($destPath) ?: $size);
 
     @chmod($destPath, 0640);

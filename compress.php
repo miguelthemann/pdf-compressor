@@ -11,9 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     appJsonResponse(['ok' => false, 'error' => 'Método não permitido.'], 405);
 }
 
-$raw = file_get_contents('php://input') ?: '';
-$data = json_decode($raw, true);
-if (!is_array($data)) {
+$data = readJsonRequestBody();
+if ($data === null) {
     appJsonResponse(['ok' => false, 'error' => 'Pedido inválido.'], 400);
 }
 
@@ -29,6 +28,11 @@ if (!is_array($ids) || $ids === []) {
     appJsonResponse(['ok' => false, 'error' => 'Nenhum ficheiro selecionado.'], 400);
 }
 
+$maxBatchIds = (int) ($config['max_files_per_upload'] ?? 20);
+if (count($ids) > $maxBatchIds) {
+    appJsonResponse(['ok' => false, 'error' => 'Demasiados ficheiros num único pedido.'], 400);
+}
+
 [$gsBin, $gsOk] = resolveGhostscriptBinary((string) ($config['ghostscript_bin'] ?? 'gs'));
 if (!$gsOk) {
     appJsonResponse([
@@ -38,7 +42,14 @@ if (!$gsOk) {
 }
 
 $outDir = $config['uploads']['compressed'];
+$tempDir = $config['uploads']['temp'];
 ensureDir($outDir);
+ensureDir($tempDir);
+$rpOutDir = realpath($outDir);
+$rpTempDir = realpath($tempDir);
+if ($rpOutDir === false || $rpTempDir === false) {
+    appJsonResponse(['ok' => false, 'error' => 'Diretórios de trabalho indisponíveis.'], 500);
+}
 
 $results = [];
 
@@ -55,20 +66,25 @@ foreach ($ids as $id) {
 
     $meta = $_SESSION['files'][$id];
     $input = $meta['original_path'] ?? '';
-    if (!is_string($input) || !is_file($input)) {
+    if (!is_string($input) || !pathIsFileInsideDir($input, $rpTempDir)) {
         $results[] = ['ok' => false, 'id' => $id, 'error' => 'Ficheiro original em falta.'];
         continue;
     }
 
     // Remover compressão anterior se existir
-    unlinkIfExists(isset($meta['compressed_path']) ? (string) $meta['compressed_path'] : null);
+    unlinkUploadPathIfExists(isset($meta['compressed_path']) ? (string) $meta['compressed_path'] : null, $config);
 
     $outName = $id . '_compressed.pdf';
-    $output = $outDir . DIRECTORY_SEPARATOR . $outName;
+    if (!preg_match('/^[a-f0-9]{32}_compressed\.pdf$/', $outName)) {
+        $results[] = ['ok' => false, 'id' => $id, 'error' => 'Estado interno inválido.'];
+        continue;
+    }
+    $output = $rpOutDir . DIRECTORY_SEPARATOR . $outName;
 
     $cmd = escapeshellarg($gsBin)
         . ' -sDEVICE=pdfwrite'
         . ' -dCompatibilityLevel=1.4'
+        . ' -dSAFER'
         . ' -dPDFSETTINGS=' . $pdfSetting
         . ' -dNOPAUSE -dQUIET -dBATCH'
         . ' -sOutputFile=' . escapeshellarg($output)
@@ -79,8 +95,8 @@ foreach ($ids as $id) {
     $code = 0;
     exec($cmd, $outputLog, $code);   
 
-    if ($code !== 0 || !is_file($output) || filesize($output) === 0) {
-        unlinkIfExists($output);
+    if ($code !== 0 || !is_file($output) || is_link($output) || !pathIsFileInsideDir($output, $rpOutDir) || filesize($output) === 0) {
+        unlinkUploadPathIfExists(is_file($output) ? $output : null, $config);
         $results[] = [
             'ok' => false,
             'id' => $id,

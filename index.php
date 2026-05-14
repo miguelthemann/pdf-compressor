@@ -10,8 +10,6 @@ $maxMb = (int) round((int) $config['max_file_bytes'] / (1024 * 1024));
 $ttl = (int) ($config['ttl_minutes'] ?? 30);
 $maxFiles = (int) ($config['max_files_per_upload'] ?? 20);
 
-header('X-Frame-Options: SAMEORIGIN');
-header('Referrer-Policy: strict-origin-when-cross-origin');
 ?>
 <!DOCTYPE html>
 <html lang="pt-PT">
@@ -35,7 +33,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
             </span>
             <div>
                 <h1 class="brand-title">PDF Sucker</h1>
-                <p class="brand-sub">Menos megabytes, mesmo PDF — Made by João</p>
+                <p class="brand-sub">Menos megabytes, mesmo PDF — (14/05/2026) Made by João e Miguel</p>
             </div>
         </div>
         <div class="header-meta">

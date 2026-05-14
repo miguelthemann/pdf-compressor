@@ -19,4 +19,10 @@ if (!isset($_SESSION['files']) || !is_array($_SESSION['files'])) {
 
 require_once __DIR__ . '/helpers.php';
 
+if (!headers_sent()) {
+    header('X-Content-Type-Options: nosniff', false);
+    header('Referrer-Policy: strict-origin-when-cross-origin', false);
+    header('X-Frame-Options: SAMEORIGIN', false);
+}
+
 cleanupExpiredFiles($config);

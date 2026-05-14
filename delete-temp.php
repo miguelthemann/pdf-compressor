@@ -11,15 +11,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     appJsonResponse(['ok' => false, 'error' => 'Método não permitido.'], 405);
 }
 
-$raw = file_get_contents('php://input') ?: '';
-$data = json_decode($raw, true);
-if (!is_array($data)) {
+$data = readJsonRequestBody();
+if ($data === null) {
     appJsonResponse(['ok' => false, 'error' => 'Pedido inválido.'], 400);
 }
 
 $ids = $data['ids'] ?? null;
 if (!is_array($ids)) {
     appJsonResponse(['ok' => false, 'error' => 'Lista inválida.'], 400);
+}
+
+$maxBatchIds = (int) ($config['max_files_per_upload'] ?? 20);
+if (count($ids) > $maxBatchIds) {
+    appJsonResponse(['ok' => false, 'error' => 'Lista demasiado longa.'], 400);
 }
 
 foreach ($ids as $id) {
@@ -30,8 +34,8 @@ foreach ($ids as $id) {
         continue;
     }
     $meta = $_SESSION['files'][$id];
-    unlinkIfExists($meta['original_path'] ?? null);
-    unlinkIfExists($meta['compressed_path'] ?? null);
+    unlinkUploadPathIfExists($meta['original_path'] ?? null, $config);
+    unlinkUploadPathIfExists($meta['compressed_path'] ?? null, $config);
     unset($_SESSION['files'][$id]);
 }
 

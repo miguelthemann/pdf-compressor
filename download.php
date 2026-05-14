@@ -35,16 +35,32 @@ if (!isset($_SESSION['files'][$id]) || !is_array($_SESSION['files'][$id])) {
 
 $meta = $_SESSION['files'][$id];
 $type = isset($_GET['type']) ? (string) $_GET['type'] : 'compressed';
+if ($type !== 'compressed' && $type !== 'original') {
+    http_response_code(400);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'Tipo de ficheiro inválido.';
+    exit;
+}
+
+$tempRoot = (string) ($config['uploads']['temp'] ?? '');
+$compressedRoot = (string) ($config['uploads']['compressed'] ?? '');
 
 if ($type === 'compressed') {
     $path = $meta['compressed_path'] ?? null;
-    $downloadName = preg_replace('/\.pdf$/i', '', (string) ($meta['original_name'] ?? 'documento')) . '_comprimido.pdf';
+    $downloadName = preg_replace('/\.pdf$/iu', '', (string) ($meta['original_name'] ?? 'documento')) . '_comprimido.pdf';
 } else {
     $path = $meta['original_path'] ?? null;
     $downloadName = (string) ($meta['original_name'] ?? 'documento.pdf');
 }
 
-if (!is_string($path) || !is_file($path)) {
+$rootForPath = $type === 'compressed' ? $compressedRoot : $tempRoot;
+if (
+    !is_string($path)
+    || $path === ''
+    || !is_file($path)
+    || $rootForPath === ''
+    || !pathIsFileInsideDir($path, $rootForPath)
+) {
     http_response_code(404);
     header('Content-Type: text/plain; charset=utf-8');
     echo 'Ficheiro não disponível.';
@@ -54,7 +70,7 @@ if (!is_string($path) || !is_file($path)) {
 $downloadName = sanitizeStoredBasename($downloadName);
 
 header('Content-Type: application/pdf');
-header('Content-Disposition: attachment; filename="' . $downloadName . '"');
+header('Content-Disposition: ' . httpContentDispositionAttachment($downloadName));
 header('Content-Length: ' . (string) filesize($path));
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: no-store');
@@ -62,22 +78,78 @@ header('Cache-Control: no-store');
 readfile($path);
 
 // Após descarga: remover temporários deste item
-unlinkIfExists($meta['original_path'] ?? null);
-unlinkIfExists($meta['compressed_path'] ?? null);
+unlinkUploadPathIfExists($meta['original_path'] ?? null, $config);
+unlinkUploadPathIfExists($meta['compressed_path'] ?? null, $config);
 unset($_SESSION['files'][$id]);
 exit;
+
+/**
+ * Nome dentro do ZIP = nome original sanitizado; em colisões usa "nome (2).pdf", etc.
+ *
+ * @param array<string, true> $usedKeys chaves em minúsculas já reservadas no ZIP
+ */
+function zipUniqueEntryName(string $basename, array &$usedKeys): string
+{
+    $lower = static function (string $s): string {
+        return function_exists('mb_strtolower') ? mb_strtolower($s, 'UTF-8') : strtolower($s);
+    };
+
+    $key = $lower($basename);
+    if (!isset($usedKeys[$key])) {
+        $usedKeys[$key] = true;
+        return $basename;
+    }
+    if (!preg_match('/^(.+)\.pdf$/iu', $basename, $m)) {
+        $usedKeys[$lower($basename)] = true;
+        return $basename;
+    }
+    $stem = $m[1];
+    for ($n = 2; ; $n++) {
+        $candidate = $stem . ' (' . $n . ').pdf';
+        if (function_exists('mb_substr')) {
+            $candidate = mb_substr($candidate, 0, 200, 'UTF-8');
+        } else {
+            $candidate = substr($candidate, 0, 200);
+        }
+        if (!str_ends_with($lower($candidate), '.pdf')) {
+            $candidate = function_exists('mb_substr')
+                ? mb_substr($candidate, 0, 196, 'UTF-8') . '.pdf'
+                : substr($candidate, 0, 196) . '.pdf';
+        }
+        $k = $lower($candidate);
+        if (!isset($usedKeys[$k])) {
+            $usedKeys[$k] = true;
+            return $candidate;
+        }
+    }
+}
 
 /**
  * @param array<string, mixed> $config
  */
 function handleZipDownload(array $config): void
 {
-    $raw = file_get_contents('php://input') ?: '';
-    $data = json_decode($raw, true);
-    if (!is_array($data) || !isset($data['ids']) || !is_array($data['ids'])) {
+    $data = readJsonRequestBody();
+    if ($data === null || !isset($data['ids']) || !is_array($data['ids'])) {
         http_response_code(400);
         header('Content-Type: text/plain; charset=utf-8');
         echo 'Pedido inválido.';
+        exit;
+    }
+
+    $maxBatchIds = (int) ($config['max_files_per_upload'] ?? 20);
+    if (count($data['ids']) > $maxBatchIds) {
+        http_response_code(400);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo 'Demasiados ficheiros no pedido.';
+        exit;
+    }
+
+    $compressedRoot = (string) ($config['uploads']['compressed'] ?? '');
+    if ($compressedRoot === '') {
+        http_response_code(500);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo 'Configuração inválida.';
         exit;
     }
 
@@ -99,7 +171,7 @@ function handleZipDownload(array $config): void
         exit;
     }
 
-    $zipIndex = 0;
+    $usedZipNames = [];
     foreach ($data['ids'] as $rid) {
         if (!is_string($rid) || !preg_match('/^[a-f0-9]{32}$/', $rid)) {
             continue;
@@ -109,13 +181,11 @@ function handleZipDownload(array $config): void
         }
         $m = $_SESSION['files'][$rid];
         $cp = $m['compressed_path'] ?? null;
-        if (!is_string($cp) || !is_file($cp)) {
+        if (!is_string($cp) || !pathIsFileInsideDir($cp, $compressedRoot)) {
             continue;
         }
-        $base = (string) ($m['original_name'] ?? 'documento.pdf');
-        $base = sanitizeStoredBasename($base);
-        $zipIndex++;
-        $entryName = sprintf('%04d_%s', $zipIndex, $base);
+        $base = sanitizeStoredBasename((string) ($m['original_name'] ?? 'documento.pdf'));
+        $entryName = zipUniqueEntryName($base, $usedZipNames);
         $zip->addFile($cp, $entryName);
         $pathsToDelete[$rid] = $m;
     }
@@ -131,6 +201,14 @@ function handleZipDownload(array $config): void
 
     $zip->close();
 
+    if (!is_file($zipPath) || is_link($zipPath) || !pathIsFileInsideDir($zipPath, $config['uploads']['temp'])) {
+        @unlink($zipPath);
+        http_response_code(500);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo 'Não foi possível preparar o arquivo.';
+        exit;
+    }
+
     header('Content-Type: application/zip');
     header('Content-Disposition: attachment; filename="pdfs_comprimidos.zip"');
     header('Content-Length: ' . (string) filesize($zipPath));
@@ -139,8 +217,8 @@ function handleZipDownload(array $config): void
     @unlink($zipPath);
 
     foreach ($pathsToDelete as $rid => $m) {
-        unlinkIfExists(is_array($m) ? ($m['original_path'] ?? null) : null);
-        unlinkIfExists(is_array($m) ? ($m['compressed_path'] ?? null) : null);
+        unlinkUploadPathIfExists(is_array($m) ? ($m['original_path'] ?? null) : null, $config);
+        unlinkUploadPathIfExists(is_array($m) ? ($m['compressed_path'] ?? null) : null, $config);
         unset($_SESSION['files'][$rid]);
     }
     exit;
