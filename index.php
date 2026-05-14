@@ -20,6 +20,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="index, follow">
     <title>PDF Sucker</title>
+    <link rel="icon" href="favicon.png" type="image/png">
     <link rel="stylesheet" href="assets/css/app.css?v=1">
 </head>
 <body>
