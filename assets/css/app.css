@@ -2,17 +2,17 @@
 /* Compressão PDF — tema SaaS minimalista, PT-PT */
 
 :root {
-    --bg0: #070a10;
-    --bg1: #0c111c;
-    --panel: rgba(18, 24, 38, 0.55);
-    --panel-border: rgba(255, 255, 255, 0.08);
-    --text: #e8ecf5;
-    --muted: #94a0b8;
-    --accent: #5b8cff;
-    --accent2: #7c5cff;
-    --ok: #3dd68c;
-    --warn: #f5b14a;
-    --err: #ff6b7a;
+    --bg0: #0a0000;
+    --bg1: #1a0a0a;
+    --panel: rgba(50, 15, 15, 0.55);
+    --panel-border: rgba(255, 80, 80, 0.12);
+    --text: #f5e8e8;
+    --muted: #b89494;
+    --accent: #ff3333;
+    --accent2: #cc0000;
+    --ok: #ff6666;
+    --warn: #ff7744;
+    --err: #ff4444;
     --radius: 16px;
     --radius-sm: 10px;
     --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
@@ -33,8 +33,8 @@ body {
     margin: 0;
     min-height: 100vh;
     font-family: var(--font);
-    background: radial-gradient(1200px 600px at 10% -10%, rgba(91, 140, 255, 0.12), transparent 55%),
-        radial-gradient(900px 500px at 90% 0%, rgba(124, 92, 255, 0.1), transparent 50%),
+    background: radial-gradient(1200px 600px at 10% -10%, rgba(255, 51, 51, 0.15), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(204, 0, 0, 0.12), transparent 50%),
         linear-gradient(165deg, var(--bg0), var(--bg1));
     color: var(--text);
     line-height: 1.5;
@@ -156,18 +156,18 @@ body {
     padding: 1rem 1.1rem;
     border: 1px solid var(--panel-border);
     backdrop-filter: blur(14px);
-    background: rgba(18, 24, 38, 0.65);
+    background: rgba(50, 15, 15, 0.65);
 }
 
 .alert-warn {
-    border-color: rgba(245, 177, 74, 0.35);
-    background: rgba(245, 177, 74, 0.08);
-    color: #ffe7c2;
+    border-color: rgba(255, 119, 68, 0.35);
+    background: rgba(255, 119, 68, 0.08);
+    color: #ffe8d4;
 }
 
 .alert-ok {
-    border-color: rgba(61, 214, 140, 0.35);
-    color: #c9ffe8;
+    border-color: rgba(255, 102, 102, 0.35);
+    color: #ffd4d4;
 }
 
 .visually-hidden {
@@ -196,8 +196,8 @@ body {
 }
 
 .drop-panel.is-dragover {
-    border-color: rgba(91, 140, 255, 0.55);
-    background: rgba(91, 140, 255, 0.08);
+    border-color: rgba(255, 51, 51, 0.55);
+    background: rgba(255, 51, 51, 0.08);
     transform: translateY(-1px);
 }
 
@@ -304,8 +304,8 @@ body {
 }
 
 .seg-item:has(input:checked) {
-    border-color: rgba(91, 140, 255, 0.55);
-    background: rgba(91, 140, 255, 0.1);
+    border-color: rgba(255, 51, 51, 0.55);
+    background: rgba(255, 51, 51, 0.1);
 }
 
 .seg-item:hover {
@@ -331,9 +331,9 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--accent), #3d6dff);
+    background: linear-gradient(135deg, var(--accent), #ff1a1a);
     color: #fff;
-    box-shadow: 0 10px 30px rgba(91, 140, 255, 0.35);
+    box-shadow: 0 10px 30px rgba(255, 51, 51, 0.35);
 }
 
 .btn-primary:not(:disabled):hover {
@@ -465,7 +465,7 @@ body {
 
 .file-row[data-state="ready"] .status-dot {
     background: var(--accent);
-    box-shadow: 0 0 0 4px rgba(91, 140, 255, 0.2);
+    box-shadow: 0 0 0 4px rgba(255, 51, 51, 0.2);
 }
 
 .file-row[data-state="compressing"] .status-dot {
@@ -475,7 +475,7 @@ body {
 
 .file-row[data-state="done"] .status-dot {
     background: var(--ok);
-    box-shadow: 0 0 0 4px rgba(61, 214, 140, 0.2);
+    box-shadow: 0 0 0 4px rgba(255, 102, 102, 0.2);
 }
 
 .file-row[data-state="error"] .status-dot {
