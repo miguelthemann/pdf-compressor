@@ -14,13 +14,27 @@ if (!isset($_FILES['pdfs'])) {
 }
 
 $files = $_FILES['pdfs'];
+if (!is_array($files) || !isset($files['name'])) {
+    appJsonResponse(['ok' => false, 'error' => 'Formato de upload inválido.'], 400);
+}
+
+/*
+ * Com o nome de campo `pdfs[]`, um único ficheiro vem com name/tmp_name/... como
+ * escalares; vários ficheiros vêm como arrays. Normalizamos sempre para array.
+ */
+if (!is_array($files['name'])) {
+    $files = [
+        'name' => [$files['name']],
+        'type' => [isset($files['type']) ? $files['type'] : ''],
+        'tmp_name' => [isset($files['tmp_name']) ? $files['tmp_name'] : ''],
+        'error' => [isset($files['error']) ? (int) $files['error'] : UPLOAD_ERR_OK],
+        'size' => [isset($files['size']) ? (int) $files['size'] : 0],
+    ];
+}
+
 $maxFile = (int) $config['max_file_bytes'];
 $maxBatch = (int) $config['max_batch_bytes'];
 $maxCount = (int) $config['max_files_per_upload'];
-
-if (!is_array($files['name'])) {
-    appJsonResponse(['ok' => false, 'error' => 'Formato de upload inválido.'], 400);
-}
 
 $n = count($files['name']);
 if ($n > $maxCount) {

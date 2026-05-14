@@ -42,8 +42,18 @@ export function uploadPdfs(files, onProgress) {
                 resolve(data);
                 return;
             }
-            const msg = data && data.error ? data.error : 'Falha no envio.';
-            reject(new Error(msg));
+            if (data && data.error) {
+                reject(new Error(data.error));
+                return;
+            }
+            const snippet = raw.replace(/\s+/g, ' ').trim().slice(0, 180);
+            const hint =
+                xhr.status < 200 || xhr.status >= 300
+                    ? `Resposta HTTP ${xhr.status}${snippet ? `: ${snippet}` : ''}`
+                    : snippet
+                      ? `Resposta inválida (não é JSON): ${snippet}`
+                      : 'Resposta vazia ou inválida do servidor.';
+            reject(new Error(`Falha no envio. ${hint}`));
         };
 
         xhr.onerror = () => reject(new Error('Erro de rede no envio.'));
