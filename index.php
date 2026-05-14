@@ -31,10 +31,7 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
     <header class="site-header">
         <div class="brand">
             <span class="brand-mark" aria-hidden="true">
-                <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="4" y="2" width="20" height="26" rx="3" stroke="currentColor" stroke-width="1.6"/>
-                    <path d="M9 10h10M9 15h10M9 20h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                </svg>
+                <img src="favicon.png" alt="" width="32" height="32" decoding="async" class="brand-logo">
             </span>
             <div>
                 <h1 class="brand-title">PDF Sucker</h1>
