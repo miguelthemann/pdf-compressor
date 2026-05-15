@@ -33,7 +33,7 @@ $maxFiles = (int) ($config['max_files_per_upload'] ?? 20);
             </span>
             <div>
                 <h1 class="brand-title">PDF Sucker</h1>
-                <p class="brand-sub">Menos megabytes, mesmo PDF — (14/05/2026) Made by João e Miguel</p>
+                <p class="brand-sub">Menos megabytes, mesmo PDF — Made by João e Miguel</p>
             </div>
         </div>
         <div class="header-meta">
@@ -76,17 +76,17 @@ $maxFiles = (int) ($config['max_files_per_upload'] ?? 20);
                         <label class="seg-item">
                             <input type="radio" name="quality" value="low">
                             <span>Baixa qualidade</span>
-                            <small>Melhor imagem · /printer</small>
+                            <small>Melhor imagem · 🖨️</small>
                         </label>
                         <label class="seg-item">
                             <input type="radio" name="quality" value="medium" checked>
                             <span>Média qualidade</span>
-                            <small>Equilíbrio · /ebook</small>
+                            <small>Equilíbrio · 📖</small>
                         </label>
                         <label class="seg-item">
                             <input type="radio" name="quality" value="high">
                             <span>Alta compressão</span>
-                            <small>Ficheiro menor · /screen</small>
+                            <small>Ficheiro menor · 🖥️</small>
                         </label>
                     </div>
                 </fieldset>
