@@ -93,9 +93,6 @@ $maxFiles = (int) ($config['max_files_per_upload'] ?? 20);
             </div>
 
             <div class="row row-actions">
-                <button type="button" class="btn btn-primary" id="compress-btn" disabled>
-                    Comprimir PDFs
-                </button>
                 <button type="button" class="btn btn-ghost" id="download-all-btn" disabled>
                     Descarregar todos
                 </button>

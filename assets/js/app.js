@@ -18,7 +18,6 @@ const el = {
     empty: document.getElementById('empty-hint'),
     count: document.getElementById('file-count'),
     tpl: document.getElementById('row-template'),
-    compress: document.getElementById('compress-btn'),
     dlAll: document.getElementById('download-all-btn'),
     progWrap: document.getElementById('progress-wrap'),
     progFill: document.getElementById('progress-fill'),
@@ -30,7 +29,6 @@ function syncEmpty() {
     const n = items.length;
     el.empty.hidden = n > 0;
     el.count.textContent = String(n);
-    el.compress.disabled = n === 0 || !cfg.gsOk;
     const anyDone = items.some((i) => i.status === 'done');
     el.dlAll.disabled = !anyDone;
 }
@@ -233,11 +231,12 @@ async function handleIncomingFiles(fileArr) {
         });
 
         let i = 0;
+        const successfulUploads = [];
         for (const part of res.files || []) {
             const f = batch[i++];
             if (!f) break;
             if (part.ok && part.id) {
-                items.push({
+                const item = {
                     localId: randomId(),
                     serverId: part.id,
                     name: part.name || f.name,
@@ -246,7 +245,9 @@ async function handleIncomingFiles(fileArr) {
                     reduction: null,
                     status: 'ready',
                     error: null,
-                });
+                };
+                items.push(item);
+                successfulUploads.push(item);
             } else {
                 items.push({
                     localId: randomId(),
@@ -261,8 +262,16 @@ async function handleIncomingFiles(fileArr) {
             }
         }
         renderList();
-        setProgress(true, 'Envio concluído.', 100);
-        setTimeout(() => setProgress(false, '', 0), 700);
+        
+        // Iniciar compressão automática após upload bem-sucedido
+        if (successfulUploads.length > 0) {
+            setProgress(true, 'Envio concluído. A comprimir…', 100);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await autoCompressFiles(successfulUploads);
+        } else {
+            setProgress(true, 'Envio concluído.', 100);
+            setTimeout(() => setProgress(false, '', 0), 700);
+        }
     } catch (e) {
         setProgress(false, '', 0);
         alert(e instanceof Error ? e.message : 'Erro desconhecido.');
@@ -281,7 +290,6 @@ async function runCompress() {
         return;
     }
 
-    el.compress.disabled = true;
     el.dlAll.disabled = true;
     setProgress(true, 'A comprimir no servidor…', 8);
     startFakeProgress();
@@ -325,6 +333,61 @@ async function runCompress() {
             refreshRow(it.localId);
         }
         alert(e instanceof Error ? e.message : 'Erro desconhecido.');
+    } finally {
+        syncEmpty();
+    }
+}
+
+/**
+ * Comprime ficheiros automaticamente (após upload).
+ * @param {FileItem[]} targets
+ */
+async function autoCompressFiles(targets) {
+    const ids = targets.map((i) => /** @type {string} */ (i.serverId));
+    if (ids.length === 0) return;
+
+    el.dlAll.disabled = true;
+    setProgress(true, 'A comprimir no servidor…', 8);
+    startFakeProgress();
+
+    for (const it of targets) {
+        it.status = 'compressing';
+        it.error = null;
+        refreshRow(it.localId);
+    }
+
+    try {
+        const data = await compressPdfs(ids, selectedQuality());
+        stopFakeProgress();
+        const byId = new Map((data.results || []).map((r) => [r.id, r]));
+        for (const it of targets) {
+            const r = byId.get(it.serverId);
+            if (r && r.ok) {
+                it.status = 'done';
+                it.compressedSize = r.compressed_size ?? null;
+                it.reduction = r.reduction_percent ?? null;
+                it.error = null;
+            } else {
+                it.status = 'error';
+                it.compressedSize = null;
+                it.reduction = null;
+                it.error =
+                    r && typeof r.error === 'string' && r.error
+                        ? r.error
+                        : 'Falha na compressão.';
+            }
+            refreshRow(it.localId);
+        }
+        setProgress(true, 'Compressão concluída.', 100);
+        setTimeout(() => setProgress(false, '', 0), 700);
+    } catch (e) {
+        stopFakeProgress();
+        setProgress(false, '', 0);
+        for (const it of targets) {
+            it.status = 'error';
+            it.error = e instanceof Error ? e.message : 'Erro desconhecido.';
+            refreshRow(it.localId);
+        }
     } finally {
         syncEmpty();
     }
@@ -398,7 +461,6 @@ el.drop.addEventListener('drop', (e) => {
     void handleIncomingFiles(Array.from(dt.files));
 });
 
-el.compress.addEventListener('click', () => void runCompress());
 el.dlAll.addEventListener('click', () => void runDownloadAll());
 
 syncEmpty();
