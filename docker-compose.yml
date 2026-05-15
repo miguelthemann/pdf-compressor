@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    image: pdf-sucker:local
+    image: pdf-sucker-scpdpi:local
     ports:
       - "8080:80"
     volumes:

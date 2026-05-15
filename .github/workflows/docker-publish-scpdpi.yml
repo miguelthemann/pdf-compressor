@@ -1,20 +1,20 @@
-name: PDF Sucker — Docker image
+name: PDF Sucker SCPDPI — Docker image
 
 on:
   push:
     branches:
-      - main
+      - scpdpi
     tags:
-      - 'v*'
+      - 'scpdpi-v*'
   pull_request:
     branches:
-      - main
+      - scpdpi
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  # Imagem: ghcr.io/<owner>/pdf-sucker (independente do nome do repositório no GitHub)
-  IMAGE_NAME: ${{ github.repository_owner }}/pdf-sucker
+  # Imagem: ghcr.io/<owner>/pdf-sucker-scpdpi (para o branch scpdpi)
+  IMAGE_NAME: ${{ github.repository_owner }}/pdf-sucker-scpdpi
 
 jobs:
   build-and-push:

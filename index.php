@@ -33,7 +33,7 @@ $maxFiles = (int) ($config['max_files_per_upload'] ?? 20);
             </span>
             <div>
                 <h1 class="brand-title">PDF Sucker</h1>
-                <p class="brand-sub">Menos megabytes, mesmo PDF — (14/05/2026) Made by João e Miguel</p>
+                <p class="brand-sub">Menos megabytes, mesmo PDF — (Edição Limitada SCPDPI) Made by João e Miguel</p>
             </div>
         </div>
         <div class="header-meta">
