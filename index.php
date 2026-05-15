@@ -116,7 +116,7 @@ $maxFiles = (int) ($config['max_files_per_upload'] ?? 20);
         </section>
 
         <footer class="foot-note">
-            <p>Os ficheiros são temporários: são eliminados após descarga ou após <?php echo (int) $ttl; ?> minutos. Não é guardado histórico nem base de dados.</p>
+            <p>Os ficheiros são temporários: são eliminados após descarga ou após <?php echo (int) $ttl; ?> minutos. Os ficheiros e o histórico de uploads não são guardados.</p>
         </footer>
     </main>
 
