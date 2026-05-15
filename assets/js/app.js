@@ -223,7 +223,6 @@ async function handleIncomingFiles(fileArr) {
     }
 
     setProgress(true, 'A enviar ficheiros…', 0);
-    el.compress.disabled = true;
 
     try {
         const res = await uploadPdfs(batch, (pct) => {
